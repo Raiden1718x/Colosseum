@@ -101,25 +101,20 @@ http://localhost:8000
 
 ## Deployment
 
-Colosseum is containerized with a multi-stage `Dockerfile` and deployed via Docker, with the host's Docker socket mounted in so the app can spawn execution containers:
+Colosseum is containerized with a multi-stage `Dockerfile`. On a Linux host, it's run with the host's Docker socket mounted in so the app can spawn execution containers:
 
-```yaml
-volumes:
-  - /var/run/docker.sock:/var/run/docker.sock
+```bash
+docker run -p 8000:8000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --env-file .env \
+  raiden1718x/colosseum:latest
 ```
 
 This works cleanly on a Linux host (e.g. a VPS) where the app container and Docker daemon share the same filesystem. It does not work reliably on Docker Desktop for Windows due to the VM layer between the two, which is why local development uses `uvicorn` directly instead.
 
 GitHub Actions automatically builds and pushes a new image to Docker Hub on every push to `main`.
 
----
-
-## What's Next
-
-- [ ] Redis-backed job queue for concurrent submissions at scale
-- [ ] Support for additional languages (C++, Java, JavaScript)
-- [ ] Permanent hosting on a Linux VPS
-- [ ] Submission history page
+> Not currently deployed to a permanent host — the Docker Hub image is built and ready via CI/CD, deployment to a Linux VPS is pending.
 
 ---
 
