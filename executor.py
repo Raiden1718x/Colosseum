@@ -19,9 +19,32 @@ def run_code(code : str):
     report = {"output" : "", "status" : None, "execution_time" : None}
         
     try:
-        run = client.containers.run("python:3.11-slim", "python /code/solution.py", remove=False, 
-                                volumes={temp_path: {"bind": "/code/solution.py", "mode": "ro"}},
-                                user="nobody", network_disabled=True, detach=True, pids_limit=50, cpu_quota=50000, cpu_period=100000)
+        run = client.containers.run(
+    "python:3.11-slim", 
+    "python /code/solution.py", 
+    remove=False, 
+    volumes={temp_path: {"bind": "/code/solution.py", "mode": "ro"}},
+    user="nobody", 
+    network_disabled=True, 
+    detach=True, 
+    
+    # Existing CPU/Process limits
+    pids_limit=50, 
+    cpu_quota=50000, 
+    cpu_period=100000,
+    
+    # NEW: Stop them from eating all your RAM
+    mem_limit="128m",             
+    memswap_limit="128m",         
+    
+    # NEW: Stop them from filling up your hard drive
+    read_only=True,               
+    
+    # NEW: Drop all Linux capabilities to prevent container escape
+    cap_drop=["ALL"],             
+    security_opt=["no-new-privileges"]
+)
+
         
         start = time.time()
         
